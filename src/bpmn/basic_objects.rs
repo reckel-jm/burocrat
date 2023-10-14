@@ -18,6 +18,10 @@ impl<'a> BpmnProcess<'a> {
             bpmn_objects: Vec::new(),
         }
     }
+    
+    pub fn get_name(&self) -> &String {
+        &self.name
+    }
 }
 
 pub enum BpmnProcessInstanceState {
