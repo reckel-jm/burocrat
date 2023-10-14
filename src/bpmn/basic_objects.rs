@@ -9,6 +9,18 @@ pub struct BpmnProcess<'a> {
     bpmn_objects: Vec<&'a BpmnObject<'a>>,
 }
 
+enum BpmnStateMessages {
+    not_executed,
+    executed,
+    error,
+    event_triggered
+}
+
+pub struct BpmnStateMessage<'a> {
+    bpmn_object: &'a BpmnObject<'a>,
+    status_message: BpmnStateMessages
+}
+
 impl<'a> BpmnProcess<'a> {
     pub fn new (name: String, file_path: String) -> BpmnProcess<'a> {
         BpmnProcess {
@@ -45,11 +57,18 @@ pub enum BpmnTaskStatus {
     BpmnTaskError    
 }
 
+pub enum BpmnObjectType {
+    TypeBpmnTask,
+    TypeBpmnEvent,
+    TypeBpmnConnector
+}
+
 pub struct BpmnObject<'a> {
     /// A unique id of the bpmn object
     pub id: String,
     /// A human readable title which can contain multiple words
     pub title: String,
+    object_type: Option<BpmnObjectType>,
     previous_objects: Vec<&'a BpmnObject<'a>>,
     next_objects: Vec<&'a BpmnObject<'a>>,
 }
@@ -59,6 +78,7 @@ impl<'a> BpmnObject<'a> {
         BpmnObject {
             id: id.clone(),
             title: title.clone(),
+            object_type: None,
             previous_objects: Vec::new(),
             next_objects: Vec::new(),
         }
@@ -69,17 +89,30 @@ impl<'a> BpmnObject<'a> {
     pub fn get_id(&self) -> &String {
         &self.id 
     }
-    pub fn attach_next_object(&mut self, next_bpmn_object: &'a BpmnObject) {
-        self.next_objects.push(&next_bpmn_object);
+    pub fn move_on(&self) -> &Vec<&'a BpmnObject<'a>> {
+        &self.next_objects
     }
 }
 
 pub trait BpmnConnector {
-    
+    fn connect_objects(object_a: &BpmnObject, object_b: &BpmnObject);
 }
 
-pub trait BpmnEvent {
-    
+pub trait BpmnEvent<'a> { 
+    fn trigger(&'a self) -> BpmnStateMessage<'a>;
+}
+
+pub trait BpmnTask {
+    fn execute();
+}
+
+impl<'a> BpmnEvent<'a> for BpmnObject<'a>  {
+    fn trigger(&'a self) -> BpmnStateMessage<'a> {
+        BpmnStateMessage {
+            bpmn_object: &self,
+            status_message: BpmnStateMessages::executed
+        }
+    }
 }
 
 #[cfg(test)]
