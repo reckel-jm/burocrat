@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "cargo",
+            "name": "Run Project",
+            "cargoArgs": ["run"],
+        },
+        {
+            "type": "cargo",
+            "name": "Run all Tests",
+            "cargoArgs": ["test"],
+        },
+    ]
+}
