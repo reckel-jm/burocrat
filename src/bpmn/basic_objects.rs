@@ -1,16 +1,16 @@
-pub struct BpmnToken {
-    current_object: BpmnObject,
+pub struct BpmnToken<'a> {
+    current_object: &'a BpmnObject<'a>,
 }
 
-pub struct BpmnProcess {
+pub struct BpmnProcess<'a> {
     name: String,
     file_path: String,
-    first_objects: Vec<BpmnObject>,
-    bpmn_objects: Vec<BpmnObject>,
+    first_objects: Vec<&'a BpmnObject<'a>>,
+    bpmn_objects: Vec<&'a BpmnObject<'a>>,
 }
 
-impl BpmnProcess {
-    pub fn new(&self, name: String, file_path: String) -> BpmnProcess {
+impl<'a> BpmnProcess<'a> {
+    pub fn new (name: String, file_path: String) -> BpmnProcess<'a> {
         BpmnProcess {
             name,
             file_path,
@@ -27,11 +27,11 @@ pub enum BpmnProcessInstanceState {
     Error,
 }
 
-pub struct BpmnProcessInstance<'processinstance> {
+pub struct BpmnProcessInstance<'a> {
     state: BpmnProcessInstanceState,
     id: String,
-    tokens: Vec<BpmnToken>,
-    bpmn_process: &'processinstance BpmnProcess,
+    tokens: Vec<BpmnToken<'a>>,
+    bpmn_process: &'a BpmnProcess<'a>,
 }
 
 pub enum BpmnTaskStatus {
@@ -41,17 +41,17 @@ pub enum BpmnTaskStatus {
     BpmnTaskError    
 }
 
-pub struct BpmnObject<'bpmnobjectslifetime> {
+pub struct BpmnObject<'a> {
     /// A unique id of the bpmn object
     pub id: String,
     /// A human readable title which can contain multiple words
     pub title: String,
-    previous_objects: 'bpmnobjectslifetime+Vec<&BpmnObject>,
-    next_objects: Vec<BpmnObject>,
+    previous_objects: Vec<&'a BpmnObject<'a>>,
+    next_objects: Vec<&'a BpmnObject<'a>>,
 }
 
-impl BpmnObject {
-    fn new(id: &String, title: &String) -> BpmnObject {
+impl<'a> BpmnObject<'a> {
+    fn new(id: &String, title: &String) -> BpmnObject<'a> {
         BpmnObject {
             id: id.clone(),
             title: title.clone(),
@@ -65,7 +65,7 @@ impl BpmnObject {
     pub fn get_id(&self) -> &String {
         &self.id 
     }
-    pub fn attach_next_object(&mut self, next_bpmn_object: &BpmnObject) {
+    pub fn attach_next_object(&mut self, next_bpmn_object: &'a BpmnObject) {
         self.next_objects.push(&next_bpmn_object);
     }
 }
